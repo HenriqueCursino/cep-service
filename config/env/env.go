@@ -10,14 +10,26 @@ import (
 var (
 	LogLevel string
 	Port     string
+	Host     string
 )
 
 func LoadEnvs() {
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		fmt.Println("runnning the application without a .env file")
 	}
 
-	LogLevel = os.Getenv("LOG_LEVEL")
-	Port = os.Getenv("PORT")
+	Port = MustGet("PORT")
+	Host = MustGet("HOST")
+	LogLevel = MustGet("LOG_LEVEL")
+}
+
+// MustGet environment variable or panic if empty
+func MustGet(varName string) string {
+	value := os.Getenv(varName)
+	if value == "" {
+		panic(fmt.Sprintf("%s not set", varName))
+	}
+
+	return value
 }
