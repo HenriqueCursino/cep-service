@@ -3,6 +3,7 @@
 #
 # Binaries for programs and plugins
 .env
+.vscode
 *.exe
 *.exe~
 *.dll
