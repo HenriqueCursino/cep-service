@@ -1,7 +1,15 @@
 package api
 
-import "fmt"
+import (
+	"cep-service/config/env"
+
+	"github.com/gin-gonic/gin"
+)
 
 func SetupApi() {
-	fmt.Println("API is running!")
+	server := gin.Default()
+
+	Router(server)
+
+	server.Run(env.Port)
 }
