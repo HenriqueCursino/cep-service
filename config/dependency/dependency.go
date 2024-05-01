@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ViaCepController controller.CepController
+	CepManagerController controller.CepController
 )
 
 func LoadDependencies() {
@@ -16,5 +16,5 @@ func LoadDependencies() {
 
 	cepService := service.NewCepService()
 
-	ViaCepController = controller.NewCepController(cepService)
+	CepManagerController = controller.NewCepController(cepService)
 }

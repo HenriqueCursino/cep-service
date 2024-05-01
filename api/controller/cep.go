@@ -4,7 +4,6 @@ import (
 	responseFormatter "cep-service/api/response"
 	"cep-service/api/service"
 	"cep-service/utils"
-	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,7 +30,7 @@ func (cs *cepController) GetAdressByCep(c *gin.Context) {
 		return
 	}
 
-	ctx := context.Background()
+	ctx := c.Request.Context()
 	response, err := cs.cepService.GetFirstAddress(cep, ctx)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseFormatter.Error(err))

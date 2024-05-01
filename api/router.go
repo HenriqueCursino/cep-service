@@ -14,5 +14,5 @@ func Router(server *gin.Engine) {
 		})
 	})
 
-	server.GET("cep/:cep", dependency.ViaCepController.GetAdressByCep)
+	server.GET("cep/:cep", dependency.CepManagerController.GetAdressByCep)
 }

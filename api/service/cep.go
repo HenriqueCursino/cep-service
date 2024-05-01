@@ -1,6 +1,7 @@
 package service
 
 import (
+	"cep-service/api/dto"
 	"cep-service/utils"
 	"context"
 	"encoding/json"
@@ -11,7 +12,7 @@ import (
 )
 
 type CepService interface {
-	GetFirstAddress(cep string, ctx context.Context) (*Viacep, error)
+	GetFirstAddress(cep string, ctx context.Context) (*dto.ViaCep, error)
 }
 
 type cepService struct {
@@ -21,49 +22,50 @@ func NewCepService() CepService {
 	return &cepService{}
 }
 
-type Viacep struct {
-	Cep         string `json:"cep"`
-	Logradouro  string `json:"logradouro" type:"Street"`
-	Complemento string `json:"complemento"`
-	Bairro      string `json:"bairro" type:"Neighborhood"`
-	Localidade  string `json:"localidade" type:"City"`
-	Uf          string `json:"uf" type:"State"`
-	Ibge        string `json:"ibge"`
-	Gia         string `json:"gia"`
-	Ddd         string `json:"ddd"`
-	Siafi       string `json:"siafi"`
-}
-
-func (c *cepService) GetFirstAddress(cep string, ctx context.Context) (*Viacep, error) {
-	testResponse := Viacep{}
+func (c *cepService) GetFirstAddress(cep string, ctx context.Context) (*dto.ViaCep, error) {
+	response := make(chan dto.ViaCep)
 	testUrl := utils.FormatCepUrl("https://viacep.com.br/ws/?/json/", cep)
 
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, testUrl, nil)
+	go c.sendRequest(testUrl, ctx, response)
+	resp := <-response
+
+	return &resp, nil
+}
+
+func (c *cepService) sendRequest(url string, ctx context.Context, responseChannel chan<- dto.ViaCep) {
+	var finalResponse dto.ViaCep
+
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		log.Err(err).Msgf("GetFirstAddress - Error to create request")
-		return nil, err
+		log.Err(err).Msgf("sendRequest - Error to create request")
+		return
 	}
 
 	client := http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		log.Err(err).Msgf("GetFirstAddress - Fail to get response")
-		return nil, err
+		log.Err(err).Msgf("sendRequest - Fail to get response")
+		return
 	}
 
 	defer response.Body.Close()
 
+	if response.StatusCode != http.StatusOK {
+		log.Info().Msgf("sendRequest - Fail in response")
+		return
+	}
+
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		log.Err(err).Msgf("GetFirstAddress - Error to read body, url")
-		return nil, err
+		log.Err(err).Msgf("sendRequest - Error to read body, url")
+		return
 	}
 
-	err = json.Unmarshal(body, &testResponse)
+	err = json.Unmarshal(body, &finalResponse)
 	if err != nil {
-		log.Err(err).Msgf("GetFirstAddress - Error to unmarshal body")
-		return nil, err
+		log.Err(err).Msgf("sendRequest - Error to unmarshal body")
+		return
 	}
 
-	return &testResponse, err
+	responseChannel <- finalResponse
 }
