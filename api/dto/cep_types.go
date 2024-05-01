@@ -1,7 +1,69 @@
 package dto
 
+import (
+	"cep-service/api/response"
+	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+
+	"github.com/rs/zerolog/log"
+)
+
 type CepTypes interface {
 	ViaCep | OpenCep | BrasilApi | ApiCep
+}
+
+func GetViaCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[ViaCep](url, ctx).MapViaCepToResponse()
+}
+func GetOpenCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[OpenCep](url, ctx).MapOpenCepToResponse()
+}
+
+func GetBrasilApi(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[BrasilApi](url, ctx).MapBrasilApiToResponse()
+}
+
+func GetApiCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[ApiCep](url, ctx).MapApiCepToResponse()
+}
+
+func execute[T CepTypes](url string, ctx context.Context) T {
+	var responseVar T
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		log.Err(err).Msgf("execute - Error to create request, url : %s", url)
+		return responseVar
+	}
+
+	client := http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		log.Err(err).Msgf("execute - Fail to get response, url : %s", url)
+		return responseVar
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		log.Info().Msgf("execute - Fail in response, url : %s", url)
+		return responseVar
+	}
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Err(err).Msgf("execute - Error to read body, url : %s", url)
+		return responseVar
+	}
+
+	err = json.Unmarshal(body, &responseVar)
+	if err != nil {
+		log.Err(err).Msgf("execute - Error to unmarshal body, url : %s", url)
+		return responseVar
+	}
+
+	return responseVar
 }
 
 // https://viacep.com.br/ws/01001000/json/
@@ -18,6 +80,15 @@ type ViaCep struct {
 	Siafi       string `json:"siafi"`
 }
 
+func (v ViaCep) MapViaCepToResponse() response.GetAddressByCepResponse {
+	return response.GetAddressByCepResponse{
+		Street:       v.Logradouro,
+		Neighborhood: v.Bairro,
+		City:         v.Localidade,
+		State:        v.Uf,
+	}
+}
+
 // https://opencep.com/v1/15050305
 type OpenCep struct {
 	Cep         string `json:"cep"`
@@ -27,6 +98,15 @@ type OpenCep struct {
 	Localidade  string `json:"localidade" type:"City"`
 	Uf          string `json:"uf" type:"State"`
 	Ibge        string `json:"ibge"`
+}
+
+func (o OpenCep) MapOpenCepToResponse() response.GetAddressByCepResponse {
+	return response.GetAddressByCepResponse{
+		Street:       o.Logradouro,
+		Neighborhood: o.Bairro,
+		City:         o.Localidade,
+		State:        o.Uf,
+	}
 }
 
 // https://brasilapi.com.br/api/cep/v2/01001000
@@ -39,6 +119,15 @@ type BrasilApi struct {
 	Service      string `json:"service"`
 }
 
+func (b BrasilApi) MapBrasilApiToResponse() response.GetAddressByCepResponse {
+	return response.GetAddressByCepResponse{
+		Street:       b.Street,
+		Neighborhood: b.Neighborhood,
+		City:         b.City,
+		State:        b.State,
+	}
+}
+
 // https://cdn.apicep.com/file/apicep/06233-030.json
 type ApiCep struct {
 	Code       string `json:"code"`
@@ -49,4 +138,13 @@ type ApiCep struct {
 	Status     int    `json:"status"`
 	Ok         bool   `json:"ok"`
 	StatusText string `json:"statusText"`
+}
+
+func (a ApiCep) MapApiCepToResponse() response.GetAddressByCepResponse {
+	return response.GetAddressByCepResponse{
+		Street:       a.Address,
+		Neighborhood: a.District,
+		City:         a.City,
+		State:        a.State,
+	}
 }

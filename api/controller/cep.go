@@ -30,8 +30,7 @@ func (cs *cepController) GetAdressByCep(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
-	response, err := cs.cepService.GetFirstAddress(cep, ctx)
+	response, err := cs.cepService.GetFirstAddress(cep)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, responseFormatter.Error(err))
 		return
