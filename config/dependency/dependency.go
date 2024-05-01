@@ -21,7 +21,7 @@ func LoadDependencies() {
 		"https://viacep.com.br/ws/?/json/":          dto.GetViaCep,
 		"https://opencep.com/v1/?":                  dto.GetOpenCep,
 		"https://brasilapi.com.br/api/cep/v2/?":     dto.GetBrasilApi,
-		"https://cdn.apicep.com/file/apicep/?.json": dto.GetApiCep,
+		"https://api.brasilaberto.com/v1/zipcode/?": dto.GetBrasilAberto,
 	}
 
 	cepService := service.NewCepService(urls)

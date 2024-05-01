@@ -11,7 +11,7 @@ import (
 )
 
 type CepTypes interface {
-	ViaCep | OpenCep | BrasilApi | ApiCep
+	ViaCep | OpenCep | BrasilApi | BrasilAberto
 }
 
 func GetViaCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
@@ -25,8 +25,8 @@ func GetBrasilApi(url string, ctx context.Context, responseChannel chan<- respon
 	responseChannel <- execute[BrasilApi](url, ctx).MapBrasilApiToResponse()
 }
 
-func GetApiCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
-	responseChannel <- execute[ApiCep](url, ctx).MapApiCepToResponse()
+func GetBrasilAberto(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[BrasilAberto](url, ctx).MapBrasilAbertoToResponse()
 }
 
 func execute[T CepTypes](url string, ctx context.Context) T {
@@ -140,11 +140,25 @@ type ApiCep struct {
 	StatusText string `json:"statusText"`
 }
 
-func (a ApiCep) MapApiCepToResponse() response.GetAddressByCepResponse {
+type BrasilAberto struct {
+	Result ResultData `json:"result"`
+}
+
+type ResultData struct {
+	Street         string `json:"street" type:"Street"`
+	Complement     string `json:"complement"`
+	District       string `json:"district" type:"Neighborhood"`
+	City           string `json:"city" type:"City"`
+	State          string `json:"state" type:"State"`
+	StateShortname string `json:"stateShortname"`
+	Zipcode        string `json:"zipcode"`
+}
+
+func (a BrasilAberto) MapBrasilAbertoToResponse() response.GetAddressByCepResponse {
 	return response.GetAddressByCepResponse{
-		Street:       a.Address,
-		Neighborhood: a.District,
-		City:         a.City,
-		State:        a.State,
+		Street:       a.Result.Street,
+		Neighborhood: a.Result.District,
+		City:         a.Result.City,
+		State:        a.Result.State,
 	}
 }
