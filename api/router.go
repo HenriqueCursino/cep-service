@@ -1,6 +1,7 @@
 package api
 
 import (
+	"cep-service/api/middleware"
 	"cep-service/config/dependency"
 	"net/http"
 
@@ -14,5 +15,5 @@ func Router(server *gin.Engine) {
 		})
 	})
 
-	server.GET("cep/:cep", dependency.CepManagerController.GetAdressByCep)
+	server.GET("cep/:cep", middleware.AuthenticationMiddleware(), dependency.CepManagerController.GetAdressByCep)
 }

@@ -11,6 +11,7 @@ var (
 	LogLevel string
 	Port     string
 	Host     string
+	Token    string
 )
 
 func LoadEnvs() {
@@ -22,6 +23,7 @@ func LoadEnvs() {
 	Port = MustGet("PORT")
 	Host = MustGet("HOST")
 	LogLevel = MustGet("LOG_LEVEL")
+	Token = MustGet("TOKEN")
 }
 
 // MustGet environment variable or panic if empty
