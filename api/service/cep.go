@@ -21,14 +21,21 @@ func NewCepService(urls map[string]func(url string,
 }
 
 func (c *cepService) GetFirstAddress(cep string) (*response.GetAddressByCepResponse, error) {
-	response := make(chan response.GetAddressByCepResponse)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	ctx := context.Background()
-	defer ctx.Done()
+	responseChannel := make(chan response.GetAddressByCepResponse)
+
 	for url, callback := range c.urls {
-		go callback(utils.FormatCepUrl(url, cep), ctx, response)
+		go func(url string, callback func(string, context.Context, chan<- response.GetAddressByCepResponse), ctx context.Context) {
+			callback(utils.FormatCepUrl(url, cep), ctx, responseChannel)
+		}(url, callback, ctx)
 	}
-	resp := <-response
 
-	return &resp, nil
+	select {
+	case resp := <-responseChannel:
+		return &resp, nil
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 }
