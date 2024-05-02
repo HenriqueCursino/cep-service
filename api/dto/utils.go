@@ -2,6 +2,7 @@ package dto
 
 import (
 	"cep-service/api/response"
+	"cep-service/utils"
 	"context"
 	"encoding/json"
 	"io"
@@ -10,22 +11,23 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetViaCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
-	responseChannel <- execute[ViaCep](url, ctx).MapViaCepToResponse()
-}
-func GetOpenCep(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
-	responseChannel <- execute[OpenCep](url, ctx).MapOpenCepToResponse()
+func GetViaCep(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[ViaCep](url, cep, ctx).MapViaCepToResponse()
 }
 
-func GetBrasilApi(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
-	responseChannel <- execute[BrasilApi](url, ctx).MapBrasilApiToResponse()
+func GetOpenCep(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[OpenCep](url, cep, ctx).MapOpenCepToResponse()
 }
 
-func GetBrasilAberto(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
-	responseChannel <- execute[BrasilAberto](url, ctx).MapBrasilAbertoToResponse()
+func GetBrasilApi(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[BrasilApi](url, cep, ctx).MapBrasilApiToResponse()
 }
 
-func execute[T CepTypes](url string, ctx context.Context) T {
+func GetBrasilAberto(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
+	responseChannel <- execute[BrasilAberto](url, cep, ctx).MapBrasilAbertoToResponse()
+}
+
+func execute[T CepTypes](url string, cep string, ctx context.Context) T {
 	var responseVar T
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -43,6 +45,9 @@ func execute[T CepTypes](url string, ctx context.Context) T {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
+		if response.StatusCode == http.StatusNotFound {
+			retryGetAdress[T](url, cep, ctx)
+		}
 		log.Info().Msgf("execute - Fail in response, url : %s", url)
 		return responseVar
 	}
@@ -60,4 +65,9 @@ func execute[T CepTypes](url string, ctx context.Context) T {
 	}
 
 	return responseVar
+}
+
+func retryGetAdress[T CepTypes](url string, cep string, ctx context.Context) {
+	newCep := utils.ReplaceLastCepDigit(cep)
+	execute[T](utils.FormatCepUrl(url, newCep), newCep, ctx)
 }

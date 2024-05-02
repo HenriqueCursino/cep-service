@@ -17,7 +17,7 @@ var (
 func LoadDependencies() {
 	log.Info().Msg("loading dependencies!")
 
-	urls := map[string]func(url string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse){
+	urls := map[string]func(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse){
 		"https://viacep.com.br/ws/?/json/":          dto.GetViaCep,
 		"https://opencep.com/v1/?":                  dto.GetOpenCep,
 		"https://brasilapi.com.br/api/cep/v2/?":     dto.GetBrasilApi,
