@@ -17,18 +17,27 @@ func ValidateCEP(cep string) bool {
 	return match
 }
 
-func ReplaceLastCepDigit(cep string) string {
-	cepRune := []rune(cep)
-	length := len(cepRune) - 1
+func ReplaceLastCepDigit(input string) string {
+	runes := []rune(input)
+	length := len(runes) - 1
 
 	for i := length; i >= 0; i-- {
-		if cepRune[i] != '0' {
-			cepRune[i] = '0'
+		if runes[i] != '0' && runes[i] != '-' {
+			runes[i] = '0'
 			break
 		}
 	}
 
-	return string(cepRune)
+	return string(runes)
+}
+
+func HasNonZero(input string) bool {
+	for _, char := range input {
+		if char != '0' && char != '-' {
+			return true
+		}
+	}
+	return false
 }
 
 func FormatCepUrl(url string, cep string) string {
