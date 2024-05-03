@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func Router(server *gin.Engine) {
@@ -14,6 +16,7 @@ func Router(server *gin.Engine) {
 			"message": "it's running!",
 		})
 	})
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	server.GET("cep/:cep", middleware.AuthenticationMiddleware(), dependency.CepManagerController.GetAdressByCep)
 }

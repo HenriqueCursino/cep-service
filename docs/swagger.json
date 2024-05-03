@@ -1,0 +1,89 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Cep Sevice",
+        "title": "Cep Sevice",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/cep/{cep}": {
+            "get": {
+                "description": "Api to get address by cep. This Api try to get the CEP info fastest way\nIf the CEP is invalid, it replaces the last digit until a valid value is found.\nif no CEP is found returns Not Found",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cep"
+                ],
+                "summary": "Get address by CEP",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CEP",
+                        "name": "cep",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.GetAddressByCepResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ResponseError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "response.GetAddressByCepResponse": {
+            "type": "object",
+            "properties": {
+                "bairro": {
+                    "type": "string"
+                },
+                "cidade": {
+                    "type": "string"
+                },
+                "estado": {
+                    "type": "string"
+                },
+                "rua": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.ResponseError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

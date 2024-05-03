@@ -1,0 +1,61 @@
+basePath: /
+definitions:
+  response.GetAddressByCepResponse:
+    properties:
+      bairro:
+        type: string
+      cidade:
+        type: string
+      estado:
+        type: string
+      rua:
+        type: string
+    type: object
+  response.ResponseError:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Cep Sevice
+  title: Cep Sevice
+  version: "1.0"
+paths:
+  /cep/{cep}:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        Api to get address by cep. This Api try to get the CEP info fastest way
+        If the CEP is invalid, it replaces the last digit until a valid value is found.
+        if no CEP is found returns Not Found
+      parameters:
+      - description: CEP
+        in: path
+        name: cep
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.GetAddressByCepResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ResponseError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ResponseError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ResponseError'
+      summary: Get address by CEP
+      tags:
+      - Cep
+swagger: "2.0"
