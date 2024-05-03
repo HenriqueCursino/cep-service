@@ -32,6 +32,11 @@ func (cs *cepController) GetAdressByCep(c *gin.Context) {
 
 	response, err := cs.cepService.GetFirstAddress(cep)
 	if err != nil {
+		if err.Error() == "response is empty" {
+			c.JSON(http.StatusNotFound, responseFormatter.Error("CEP inválido"))
+			return
+		}
+
 		c.JSON(http.StatusBadRequest, responseFormatter.Error(err))
 		return
 	}

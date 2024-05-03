@@ -82,6 +82,7 @@ func retryGetAdress[T CepTypes](url string, cep string, ctx context.Context) T {
 		newCep := utils.ReplaceLastCepDigit(cep)
 		return execute[T](url, newCep, ctx)
 	}
+
 	var empty T
 	return empty
 }

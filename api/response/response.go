@@ -12,6 +12,10 @@ type GetAddressByCepResponse struct {
 	State        string `json:"estado"`
 }
 
+func (r GetAddressByCepResponse) Empty() bool {
+	return r.Street == "" && r.Neighborhood == "" && r.City == "" && r.State == ""
+}
+
 func Error(v any) Response {
 	return Response{
 		Error: v,

@@ -3,6 +3,7 @@ package service
 import (
 	"cep-service/api/response"
 	"context"
+	"errors"
 )
 
 type CepService interface {
@@ -40,6 +41,10 @@ func (c *cepService) GetFirstAddress(cep string) (*response.GetAddressByCepRespo
 
 	select {
 	case resp := <-responseChannel:
+		if resp.Empty() {
+			return nil, errors.New("response is empty")
+		}
+
 		return &resp, nil
 	case <-ctx.Done():
 		return nil, ctx.Err()
