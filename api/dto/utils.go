@@ -5,7 +5,6 @@ import (
 	"cep-service/utils"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -31,7 +30,6 @@ func GetBrasilAberto(url string, cep string, ctx context.Context, responseChanne
 
 func execute[T CepTypes](url string, cep string, ctx context.Context) T {
 	newUrl := utils.FormatCepUrl(url, cep)
-	fmt.Println(newUrl)
 
 	var responseVar T
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, newUrl, nil)
