@@ -5,6 +5,7 @@
 .env
 vendor
 .vscode
+*.html
 *.exe
 *.exe~
 *.dll
