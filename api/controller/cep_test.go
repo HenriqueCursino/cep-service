@@ -5,6 +5,7 @@ import (
 	"cep-service/api/response"
 	"cep-service/api/service"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -21,7 +22,7 @@ func TestCepController(t *testing.T) {
 		expectedResponse := response.GetAddressByCepResponse{}
 		gofakeit.Struct(&expectedResponse)
 
-		cepService := service.CepServiceSpy{}
+		cepService := service.CepServiceSpy{GetFirstAddressResponse: expectedResponse}
 
 		fakeCep := "01001-000"
 
@@ -50,10 +51,7 @@ func TestCepController(t *testing.T) {
 		require.Equal(t, expectedResponse, response)
 	})
 
-	t.Run("Success - GetAdressByCep should return 400 badRequest", func(t *testing.T) {
-		expectedResponse := response.GetAddressByCepResponse{}
-		gofakeit.Struct(&expectedResponse)
-
+	t.Run("Fail - GetAdressByCep should return 400 badRequest - (invalid cep)", func(t *testing.T) {
 		cepService := service.CepServiceSpy{}
 
 		fakeCep := "0100100"
@@ -68,25 +66,13 @@ func TestCepController(t *testing.T) {
 
 		router.ServeHTTP(w, req)
 
-		body, err := io.ReadAll(w.Body)
-		if err != nil {
-			return
-		}
-
-		response := response.GetAddressByCepResponse{}
-		err = json.Unmarshal(body, &response)
-		if err != nil {
-			return
-		}
-
 		require.Equal(t, http.StatusBadRequest, w.Code)
 	})
 
-	t.Run("Success - GetAdressByCep should return 404 notFound", func(t *testing.T) {
-		expectedResponse := response.GetAddressByCepResponse{}
-		gofakeit.Struct(&expectedResponse)
+	t.Run("Fail - GetAdressByCep should return 404 notFound", func(t *testing.T) {
+		expectedError := errors.New("response is empty")
 
-		cepService := service.CepServiceSpy{}
+		cepService := service.CepServiceSpy{GetFirstAddressError: expectedError}
 
 		fakeCep := "22288811"
 
@@ -100,17 +86,26 @@ func TestCepController(t *testing.T) {
 
 		router.ServeHTTP(w, req)
 
-		body, err := io.ReadAll(w.Body)
-		if err != nil {
-			return
-		}
-
-		response := response.GetAddressByCepResponse{}
-		err = json.Unmarshal(body, &response)
-		if err != nil {
-			return
-		}
-
 		require.Equal(t, http.StatusNotFound, w.Code)
+	})
+
+	t.Run("Fail - GetAdressByCep should return 400 badRequest", func(t *testing.T) {
+		expectedError := errors.New("error")
+
+		cepService := service.CepServiceSpy{GetFirstAddressError: expectedError}
+
+		fakeCep := "22288811"
+
+		controller := controller.NewCepController(cepService)
+		router := gin.Default()
+		router.GET("/cep/:cep", controller.GetAdressByCep)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", fmt.Sprintf("/cep/%s", fakeCep), nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		router.ServeHTTP(w, req)
+
+		require.Equal(t, http.StatusBadRequest, w.Code)
 	})
 }

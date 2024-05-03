@@ -8,6 +8,6 @@ type CepServiceSpy struct {
 	GetFirstAddressError    error
 }
 
-func (c CepServiceSpy) GetAdressByCep(cep string) (*response.GetAddressByCepResponse, error) {
+func (c CepServiceSpy) GetFirstAddress(cep string) (*response.GetAddressByCepResponse, error) {
 	return &c.GetFirstAddressResponse, c.GetFirstAddressError
 }

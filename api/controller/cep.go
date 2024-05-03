@@ -26,20 +26,26 @@ func NewCepController(cepService service.CepService) CepController {
 func (cs *cepController) GetAdressByCep(c *gin.Context) {
 	cep := c.Param("cep")
 	if !utils.ValidateCEP(cep) {
-		c.JSON(http.StatusBadRequest, responseFormatter.Error("CEP inválido"))
+		c.JSON(http.StatusBadRequest, responseFormatter.ResponseError{
+			Message: "CEP inválido",
+		})
 		return
 	}
 
 	response, err := cs.cepService.GetFirstAddress(cep)
 	if err != nil {
 		if err.Error() == "response is empty" {
-			c.JSON(http.StatusNotFound, responseFormatter.Error("CEP inválido"))
+			c.JSON(http.StatusNotFound, responseFormatter.ResponseError{
+				Message: "CEP inválido",
+			})
 			return
 		}
 
-		c.JSON(http.StatusBadRequest, responseFormatter.Error(err))
+		c.JSON(http.StatusBadRequest, responseFormatter.ResponseError{
+			Message: "CEP inválido",
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, responseFormatter.Data(&response))
+	c.JSON(http.StatusOK, &response)
 }

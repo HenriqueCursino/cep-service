@@ -1,8 +1,7 @@
 package response
 
-type Response struct {
-	Data  any `json:"data,omitempty"`
-	Error any `json:"error,omitempty"`
+type ResponseError struct {
+	Message string `json:"message"`
 }
 
 type GetAddressByCepResponse struct {
@@ -14,16 +13,4 @@ type GetAddressByCepResponse struct {
 
 func (r GetAddressByCepResponse) Empty() bool {
 	return r.Street == "" && r.Neighborhood == "" && r.City == "" && r.State == ""
-}
-
-func Error(v any) Response {
-	return Response{
-		Error: v,
-	}
-}
-
-func Data(v any) Response {
-	return Response{
-		Data: v,
-	}
 }

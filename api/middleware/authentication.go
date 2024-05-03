@@ -13,9 +13,9 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("Authorization")
 		if token != fmt.Sprintf("Bearer %s", env.Token) {
-			ctx.JSON(http.StatusUnauthorized, response.Error(
-				"Não autorizado",
-			))
+			ctx.JSON(http.StatusUnauthorized, response.ResponseError{
+				Message: "Não autorizado",
+			})
 			ctx.Abort()
 			return
 		}
