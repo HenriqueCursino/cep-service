@@ -49,5 +49,3 @@ Acesse a documentação do Swagger em:
 6. Recebimento da resposta HTTP: O navegador recebe a resposta do servidor.
 7. Renderização da página: O navegador renderiza a página HTML recebida.
 8. Exibição da página: A página do site é exibida para o usuário.
-
-//

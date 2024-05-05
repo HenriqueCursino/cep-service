@@ -48,4 +48,4 @@ jobs:
 
       - name: Build
         run: |
-          env GOOS=linux CGO_ENABLED=0 go build -o codespace-backend-api ./cmd/main.go
+          env GOOS=linux CGO_ENABLED=0 go build -o codespace-backend-api ./main.go
