@@ -33,7 +33,7 @@ func TestAuthenticationMiddleware(t *testing.T) {
 		require.Equal(t, http.StatusOK, w.Code)
 	})
 
-	t.Run("Fail - Authorization middleware in health route should return 200 ok with valid token", func(t *testing.T) {
+	t.Run("Fail - Authorization middleware in health route should return 401 StatusUnauthorized", func(t *testing.T) {
 		env.Token = "token_invalido"
 
 		router := gin.Default()
