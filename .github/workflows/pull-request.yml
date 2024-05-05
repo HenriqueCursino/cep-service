@@ -1,0 +1,51 @@
+name: building and testing
+
+on:
+  pull_request:
+    branches:
+      - "*"
+      - "*/*"
+      - "**"
+
+jobs:
+  test:
+    name: Test and Generate Coverage Report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Run Tests
+        run: |
+          go test ./... -short -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
+
+      - name: Save Coverage Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-artifacts
+          path: |
+            coverage.out
+            coverage.html
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21
+
+      - name: Build
+        run: |
+          env GOOS=linux CGO_ENABLED=0 go build -o codespace-backend-api ./cmd/main.go
