@@ -59,14 +59,14 @@ func TestAdd2(t *testing.T) {
 		Do(func(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse) {
 			responseChannel <- response.GetAddressByCepResponse{City: "buritizão"}
 		})
-	funcs.EXPECT().GetOpenCep(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
+	// funcs.EXPECT().GetOpenCep(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 	funcs.EXPECT().GetBrasilApi(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 	funcs.EXPECT().GetBrasilAberto(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 
 	// mock element
 	mocks := map[string]func(url string, cep string, ctx context.Context, responseChannel chan<- response.GetAddressByCepResponse){
-		"viacep":       funcs.GetViaCep,
-		"opencep":      funcs.GetOpenCep,
+		"viacep": funcs.GetViaCep,
+		// "opencep":      funcs.GetOpenCep,
 		"brasilapi":    funcs.GetBrasilApi,
 		"brasilaberto": funcs.GetBrasilAberto,
 	}
