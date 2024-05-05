@@ -37,3 +37,14 @@ coverage:
 	@go tool cover -html=cover.out
 	@go tool cover -html=cover.out -o cover.html
 	@echo "Coverage completed successfully."
+
+.PHONY: install-mock-cli
+install-mock-cli:
+	@echo "Installing mock cli..."
+	@go install github.com/golang/mock/mockgen
+
+.PHONY: run-mock
+run-mock: ## upgrade generated mocks
+	@echo "Creating mock files..."
+	@mockgen -source="api/service/cep.go" -destination="api/service/mock/cep.go" -package="mock"
+	@mockgen -source="api/dto/utils.go" -destination="api/dto/mock/utils.go" -package="mock"
